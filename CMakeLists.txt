@@ -47,6 +47,8 @@ add_executable(${CMAKE_PROJECT_NAME}
         device/Src/motor.cpp
         device/Src/CanTxManager.cpp
         device/Inc/CanTxManager.h
+        application/Inc/rc.h
+        application/Src/rc.cpp
 )
 
 # Add STM32CubeMX generated sources

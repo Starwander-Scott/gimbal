@@ -2,18 +2,17 @@
 // Created by cycsjtuer on 2025/11/11.
 //
 
-
-//
-// Created by chenyincheng on 2025/10/2.
-//
-
+#include <stdint.h>
+#include "usart.h"
+#include "main.h"
+#include "rc.h"
 #include "can.h"
 #include "gpio.h"
-#include "main.h"
 #include "math.h"
 #include "motor.h"
 #include "tim.h"
-#include "usart.h"
+
+
 // void HAL_GPIO_EXTI_Callback(uint16_t,GPIO_Pin){
 //     if(GPIO_Pin == BUTTON_Pin){
 //         uint32_t arr_value = __HAL_TIM_GET_AUTORELOAD(&htim1) + 1;
@@ -41,6 +40,10 @@
 
 
 // extern uint8_t rx_msg[4];
+
+rc rc1;
+extern uint8_t rx_buffer[18];
+
 extern CAN_RxHeaderTypeDef rx_header;
 extern CAN_TxHeaderTypeDef tx_header;
 extern uint8_t tx_data[8];
@@ -77,9 +80,17 @@ void HAL_TIM_PeriodElapsedCallback(
         Motor.handle();
         HAL_CAN_AddTxMessage(&hcan1, &tx_header, tx_data, &can_tx_mail_box_);
 
-
-
-
         // 调用 Motor 对象的 handle 方法
+    }
+}
+
+void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart,uint16_t Size) {
+    if (huart == &huart3) {
+        // 处理接收到的数据
+        // 例如，可以将数据存储到缓冲区，或者设置一个标志位表示数据已接收
+        HAL_UARTEx_ReceiveToIdle_DMA( &huart3,rx_buffer,18);
+        rc1.handle(rx_buffer);
+
+
     }
 }
