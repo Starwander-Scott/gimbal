@@ -75,7 +75,7 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
 void HAL_TIM_PeriodElapsedCallback(
         TIM_HandleTypeDef *htim) {// 1. 修正函数名和参数类型
     if (htim->Instance ==
-        htim6.Instance) {// 2. 现在比较的都是 TIM_TypeDef*，类型正确
+        htim7.Instance) {// 2. 现在比较的都是 TIM_TypeDef*，类型正确
 
         Motor.handle();
         HAL_CAN_AddTxMessage(&hcan1, &tx_header, tx_data, &can_tx_mail_box_);
