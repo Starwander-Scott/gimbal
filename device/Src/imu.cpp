@@ -2,11 +2,11 @@
 // Created by cycsjtuer on 2025/11/11.
 //
 
-//
-// Created by chenyincheng on 2025/10/12.
-//
 #include "imu.h"
 #include "main.h"
+#include <iostream>
+#include <cmath>
+
 
 // 假设的常量定义，实际值需参考最新数据手册
 #define g 9.80665f // 重力加速度
@@ -40,13 +40,13 @@ extern void bmi088_gyro_write_reg(uint8_t reg_addr, uint8_t data);
 //float acceleration[] = {0, 0, 0};
 //float gyro[] = {0, 0, 0};
 
-IMU::IMU() {
-  std::cout << "IMU init" << std::endl;
-}
-
-IMU::~IMU() {
-  std::cout << "IMU deinit" << std::endl;
-}
+// IMU::IMU() {
+//   std::cout << "IMU init" << std::endl;
+// }
+//
+// IMU::~IMU() {
+//   std::cout << "IMU deinit" << std::endl;
+// }
 
 int IMU::got_data() {
   return 1;
@@ -96,9 +96,9 @@ float* IMU::acc_calculate() {
 
   // 4. 用量程系数将原始数据转换为加速度值(g)
   for (int i = 0; i < 3; i++) {
-    acceleration[i] = raw_acc[i] * acc_range_factor * g;
+    accel_sensor_[i] = raw_acc[i] * acc_range_factor * g;
   }
-  return acceleration;
+  return accel_sensor_;
       //可添加进一步处理，如传感器校准、滤波等
 }
 

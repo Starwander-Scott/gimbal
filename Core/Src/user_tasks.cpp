@@ -1,8 +1,15 @@
 
 #include "user_tasks.h"
 #include "cmsis_os2.h"
+#include "string.h"
+#include "can.h"
+#include "stm32f4xx_hal_can.h"
+// #include "iwdg.h"
+#include "rc.h"
 
 
+osEventFlagsAttr_t test_event_flags_attributes = {.name = "test_event_flags"};
+osEventFlagsId_t test_event_flags_handle;
 
 
 // Control任务 - 主控制循环
@@ -14,8 +21,15 @@ constexpr osThreadAttr_t control_task_attributes = {
 };
 
 // CAN任务 - 数据收发
-osThreadId_t can_task_handle;
-constexpr osThreadAttr_t can_task_attributes = {
+osThreadId_t can_send_task_handle;
+constexpr osThreadAttr_t can_send_task_attributes = {
+    .name = "can_task",
+    .stack_size = 192 * 4,  // 768字节栈空间
+    .priority = osPriorityAboveNormal,  // 较高优先级保证通信实时性
+};
+
+osThreadId_t can_recv_task_handle;
+constexpr osThreadAttr_t can_recv_task_attributes = {
     .name = "can_task",
     .stack_size = 192 * 4,  // 768字节栈空间
     .priority = osPriorityAboveNormal,  // 较高优先级保证通信实时性
@@ -40,7 +54,8 @@ constexpr osThreadAttr_t motor_task_attributes = {
 // Control任务函数 - 主控制循环
 [[noreturn]] void control_task(void *) {
     // 初始化代码
-    system_ticks = 0;
+    //system_ticks = 0;
+    //uint32_t ticks = osKernelGetTickCount();
 
     while (true) {
         const auto tick = osKernelGetTickCount();
@@ -66,31 +81,45 @@ constexpr osThreadAttr_t motor_task_attributes = {
 }
 
 // CAN任务函数 - 数据通信
-[[noreturn]] void can_task(void *) {
+[[noreturn]] void can_send_task(void *) {
     // CAN初始化代码
-    can_init();
 
-    while (true) {
-        const auto tick = osKernelGetTickCount();
+    uint32_t tick = osKernelGetTickCount();
+    CAN_TxHeaderTypeDef tx_header;
+    uint8_t tx_data[8];
+    uint32_t tx_mailbox;
 
-        // 1. CAN数据发送
-        can_send_motor_command(motor_speed);
-        can_send_system_status();
 
-        // 2. CAN数据接收处理
-        if (can_receive_data(can_rx_data)) {
-            // 设置CAN接收标志
-            osEventFlagsSet(system_events_handle, flag_can_rx);
-            can_data_processing(can_rx_data);
-        }
-
-        // 3. 通信状态监测
-        can_communication_check();
+    // can_init();
+    //
+    // while (true) {
+    //     const auto tick = osKernelGetTickCount();
+    //
+    //     // 1. CAN数据发送
+    //     can_send_motor_command(motor_speed);
+    //     can_send_system_status();
+    //
+    //     // 2. CAN数据接收处理
+    //     if (can_receive_data(can_rx_data)) {
+    //         // 设置CAN接收标志
+    //         osEventFlagsSet(system_events_handle, flag_can_rx);
+    //         can_data_processing(can_rx_data);
+    //     }
+    //
+    //     // 3. 通信状态监测
+    //     can_communication_check();
 
         // 固定频率运行（例如50Hz）
         osDelayUntil(tick + 20);  // 20ms周期
     }
 }
+
+
+[[noreturn]] void can_recv_task(void *) {
+
+}
+
+
 
 // IMU任务函数 - 姿态解算
 [[noreturn]] void imu_task(void *) {
@@ -110,12 +139,19 @@ constexpr osThreadAttr_t motor_task_attributes = {
 
     }
 
+
+
+
+
+
+
     void user_tasks_init() {
         // test_task_handle = osThreadNew(test_task, nullptr, &test_task_attributes); // 创建任务
         // test_semaphore_handle = osSemaphoreNew(1, 0, &test_semaphore_attributes);
         // test_event_flags_handle = osEventFlagsNew(&test_event_flags_attributes);
         control_task_handle = osThreadNew(control_task, nullptr, &control_task_attributes);
-        can_task_handle = osThreadNew(can_task, nullptr, &can_task_attributes);
+        can_send_task_handle = osThreadNew(can_send_task, nullptr, &can_send_task_attributes);
+        can_recv_task_handle = osThreadNew(can_recv_task, nullptr, &can_recv_task_attributes);
         imu_task_handle = osThreadNew(imu_task, nullptr, &imu_task_attributes);
         motor_task_handle = osThreadNew(motor_task, nullptr, &motor_task_attributes);
         // test2_task_handle = osThreadNew(test2_task, nullptr, &test2_task_attributes);

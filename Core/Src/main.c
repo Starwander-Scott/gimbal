@@ -49,6 +49,15 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
+// osThreadId_t control_task_handle;
+// osThreadId_t imu_task_handle;
+// osThreadId_t can_send_task_handle;
+// osThreadId_t can_recv_task_handle;
+// osThreadId_t iwdg_task_handle;
+// osThreadId_t rc_process_task_handle;
+
+
+
 CAN_RxHeaderTypeDef rx_header;
 CAN_TxHeaderTypeDef tx_header = {.StdId = 0x200,
                                  .ExtId = 0,
@@ -120,6 +129,8 @@ int main(void)
   MX_TIM7_Init();
   MX_USART3_UART_Init();
   MX_SPI1_Init();
+  //MX_IWDG_Init();
+
   /* USER CODE BEGIN 2 */
   HAL_CAN_ConfigFilter(&hcan1, &filter_config);
   HAL_CAN_Start(&hcan1);

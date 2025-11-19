@@ -26,12 +26,16 @@ public:
   // 传感器安装方向(R_imu[3][3]，默认为I(3)），输入预校准传感器零飘
   IMU(const float& dt, const float& kg, const float& g_thres,
       const float R_imu[3][3], const float gyro_bias[3]);
+  IMU();
   // IMU传感器初始化
   void init(EulerAngle_t euler_deg_init);
   // 读取bmi088数据：加速度，角速度，温度
   void readSensor();
   // 利用线性互补滤波算法，上一时刻姿态角，加速度与角速度更新当前姿态角
   void update(void);
+  float* acc_calculate();
+  float* gyro_calculate();
+  int got_data();
 
 public:
   // IMU 原始数据
@@ -56,8 +60,76 @@ private:
   float R_imu_[3][3] = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
   // 陀螺仪零飘补偿项
   float gyro_bias_[3];
+  uint8_t rx_acc_data[6];
+  uint8_t rx_gyro_data[6];
+
   // Mahony解算
   Mahony mahony_;
 };
 
 #endif // IMU_H
+
+
+
+//
+// //
+// // Created by chenyincheng on 2025/10/12.
+// //
+// #include "main.h"
+// #include "bmi088.h"
+//
+// #ifndef C1_IMU_H
+// #define C1_IMU_H
+//
+// #ifdef __cplusplus
+//
+// #include <iostream>
+// class IMU {
+// public:
+//
+//   IMU();
+//   ~IMU();
+//   float* acc_calculate();
+//   float* gyro_calculate();
+//   //  float get_acc_x() const { return acceleration[0]; }
+//   //  float get_acc_y() const { return acceleration[1]; }
+//   //  float get_acc_z() const { return acceleration[2]; }
+//   //
+//   //  float get_gyro_x() const { return gyro[0]; }
+//   //  float get_gyro_y() const { return gyro[1]; }
+//   //  float get_gyro_z() const { return gyro[2]; }t
+//   int got_data();
+// private:
+//   uint8_t rx_acc_data[6];
+//   uint8_t rx_gyro_data[6];
+//   float acceleration[3]; // 转换后的加速度值，单位为g
+//   float gyro[3];         // 转换后的角速度值，单位为dps
+// };
+//
+// #endif
+//
+//
+// // 在imu.h文件末尾添加以下C语言接口函数
+// #ifdef __cplusplus
+// extern "C" {
+// #endif
+//
+//   // C语言兼容的接口函数声明
+//   void* imu_create(void);
+//   void imu_destroy(void* imu_ptr);
+//   float* imu_acc_calculate(void* imu_ptr);
+//   float* imu_gyro_calculate(void* imu_ptr);
+//   int imu_got_data(void* imu_ptr);
+//
+//
+//
+//
+//   void* imu_get_handle(void);
+//
+// #ifdef __cplusplus
+// }
+//
+// #endif
+//
+//
+// #endif //C1_IMU_H

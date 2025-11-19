@@ -1,11 +1,16 @@
 #ifndef BMI088_H
 #define BMI088_H
 
+#include "stdint.h"
+#include "FreeRTOS.h"
+#include "task.h"
+#include "portmacro.h"
+#include "stm32f4xx_hal.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-// chip selection
+    // chip selection
 void BMI088_ACCEL_NS_L(void);
 void BMI088_ACCEL_NS_H(void);
 void BMI088_GYRO_NS_L(void);
