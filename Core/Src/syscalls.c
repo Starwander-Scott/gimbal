@@ -28,7 +28,7 @@
 #include <signal.h>
 #include <time.h>
 #include <sys/time.h>
-#include <sys/times.h>
+// #include <sys/times.h>
 
 
 /* Variables */
@@ -139,11 +139,11 @@ int _unlink(char *name)
   return -1;
 }
 
-clock_t _times(struct tms *buf)
-{
-  (void)buf;
-  return -1;
-}
+// clock_t _times(struct tms *buf)
+// {
+//   (void)buf;
+//   return -1;
+// }
 
 int _stat(const char *file, struct stat *st)
 {

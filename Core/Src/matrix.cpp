@@ -312,7 +312,7 @@ arm_status MatrixInv(const Matrix* pSrc, Matrix* pDst) {
   for (int row = 0; row < n; row++) {
     memcpy((float*)pDst->pData + n * row, &ext_mat_data[2 * n * row + n],
            n * sizeof(float));
-  }
+  // }
 
   delete[] ext_mat_data;
   return ARM_MATH_SUCCESS;

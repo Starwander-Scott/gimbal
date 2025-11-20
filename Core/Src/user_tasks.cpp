@@ -5,11 +5,29 @@
 #include "can.h"
 #include "stm32f4xx_hal_can.h"
 // #include "iwdg.h"
+#include "imu.h"
 #include "rc.h"
 
 
 osEventFlagsAttr_t test_event_flags_attributes = {.name = "test_event_flags"};
 osEventFlagsId_t test_event_flags_handle;
+
+constexpr float dt = 0.001f;
+constexpr float kg = 0.1f;
+constexpr float g_threshold = 0.1f;
+constexpr float gyro_bias[3] = { 0.0f, 0.0f, 0.0f };
+constexpr float r_imu[3][3] = { { 1, 0, 0 }, { 0, 1, 0 }, { 0, 0, 1 } };
+
+
+
+//Gimbal gimbal_controller;
+IMU imu_sensor(dt, kg, g_threshold, r_imu, gyro_bias);
+//RemoteControl rc_controller;
+
+uint8_t rx_buf[18];
+uint8_t rx_data[18];
+
+
 
 
 // Control任务 - 主控制循环
@@ -124,17 +142,24 @@ constexpr osThreadAttr_t motor_task_attributes = {
 // IMU任务函数 - 姿态解算
 [[noreturn]] void imu_task(void *) {
     // IMU传感器初始化
-    imu_sensor_init();
+    uint32_t tick = osKernelGetTickCount();
+    for (;;)
+    {
+        imu_sensor.ReadSensor();
 
-    while (true) {
-        const auto tick = osKernelGetTickCount();
+        imu_sensor.UpdateAttitude();
 
-        // 1. 读取IMU原始数据
-        float gyro[3], accel[3], mag[3];
-        imu_read_data(gyro, accel, mag);
+
+
+        osDelayUntil(tick += 1);
+    }
 
         // 2. 姿态
     }
+
+
+
+
 [[noreturn]] void motor_task(void *) {
 
     }

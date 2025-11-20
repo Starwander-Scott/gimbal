@@ -31,6 +31,16 @@ message("Build type: " ${CMAKE_BUILD_TYPE})
 # Enable CMake support for ASM and C languages
 enable_language(C ASM)
 
+
+#DSP
+add_definitions(-DARM_MATH_CM3 -DARM_MATH_MATRIX_CHECK -DARM_MATH_ROUNDING)
+include_directories("Middlewares/ST/ARM/DSP/Inc")
+link_directories(Middlewares/ST/ARM/DSP/Lib)
+link_libraries(libarm_cortexM3l_math.a)
+
+
+
+
 # Create an executable object type
 add_executable(${CMAKE_PROJECT_NAME}
         device/Src/bmi088.cpp
@@ -49,6 +59,7 @@ add_executable(${CMAKE_PROJECT_NAME}
         device/Inc/CanTxManager.h
         application/Inc/rc.h
         application/Src/rc.cpp
+        Middlewares/ST/ARM/DSP/Inc/arm_math.h
 )
 
 # Add STM32CubeMX generated sources
@@ -71,6 +82,10 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
         device/Inc
         Core/Inc
         application/Inc
+        Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/
+        Middlewares/Third_Party/FreeRTOS/Source/include
+        Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2
+
 
     # Add user defined include paths
 )

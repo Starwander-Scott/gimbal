@@ -12,7 +12,7 @@
 #ifndef MATRIX_H
 #define MATRIX_H
 
-#include "lib/arm_math/arm_math.h"
+#include "arm_math.h"
 
 template <int n_row, int n_col>
 class Matrix_f32 {

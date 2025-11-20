@@ -103,6 +103,14 @@ float* IMU::acc_calculate() {
 }
 
 
+void IMU::readSensor() {
+
+
+
+}
+
+
+
 
 
 //void IMU::gyro_calculate(){
