@@ -70,7 +70,7 @@ void Error_Handler(void);
 extern "C" {
 #endif
 
-extern IWDG_HandleTypeDef hiwdg;
+// extern IWDG_HandleTypeDef hiwdg;
 
 #ifdef __cplusplus
 }

@@ -36,7 +36,7 @@ enable_language(C ASM)
 add_definitions(-DARM_MATH_CM3 -DARM_MATH_MATRIX_CHECK -DARM_MATH_ROUNDING)
 include_directories("Middlewares/ST/ARM/DSP/Inc")
 link_directories(Middlewares/ST/ARM/DSP/Lib)
-link_libraries(libarm_cortexM3l_math.a)
+link_libraries(libarm_cortexM4lf_math.a)
 
 
 

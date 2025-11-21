@@ -4,11 +4,13 @@
 #include "rc.h"
 #include <stdint.h>
 #include <cstring>
+#include <cmath>
 
 //从364-1684线性映射到-1-1
 
 // 在 rc.h 或相应头文件中
-extern uint8_t rx_buffer[18];
+uint8_t rx_buffer[18];
+//临时定义一下，以免编译错误，待完善
 extern rc rc1;
 
 

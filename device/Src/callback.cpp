@@ -11,7 +11,7 @@
 #include "math.h"
 #include "motor.h"
 #include "tim.h"
-#include "interrupt_notify.h"
+// #include "interrupt_notify.h"
 
 
 // void HAL_GPIO_EXTI_Callback(uint16_t,GPIO_Pin){
@@ -46,8 +46,10 @@ rc rc1;
 extern uint8_t rx_buffer[18];
 
 extern CAN_RxHeaderTypeDef rx_header;
-extern CAN_TxHeaderTypeDef tx_header;
-extern uint8_t tx_data[8];
+extern CAN_TxHeaderTypeDef tx_header_1;
+extern CAN_TxHeaderTypeDef tx_header_2;
+extern uint8_t tx_data_1[8];
+extern uint8_t tx_data_2[8];
 extern uint8_t rx_data[8];
 extern Motor Motor;
 extern uint32_t can_tx_mail_box_;
@@ -73,7 +75,7 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
     }
     
     // 发送CAN接收事件（中断安全）
-    interrupt_notify.send_event_from_isr(INTERRUPT_EVENT_CAN_RX);
+    // interrupt_notify.send_event_from_isr(INTERRUPT_EVENT_CAN_RX);
 }
 
 // void HAL_TIM_PeriodElapsedCallback(CAN_HandleTypeDef *htim) {
@@ -87,7 +89,7 @@ void HAL_TIM_PeriodElapsedCallback(
         htim7.Instance) {// 2. 现在比较的都是 TIM_TypeDef*，类型正确
 
         Motor.handle();
-        HAL_CAN_AddTxMessage(&hcan1, &tx_header, tx_data, &can_tx_mail_box_);
+        HAL_CAN_AddTxMessage(&hcan1, &tx_header_1, tx_data_1, &can_tx_mail_box_);
 
         // 调用 Motor 对象的 handle 方法
     }
@@ -98,8 +100,8 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart,uint16_t Size) {
         // 处理接收到的遥控器数据
         rc1.handle(rx_buffer);
         
-        // 发送遥控器数据就绪事件（中断安全）
-        interrupt_notify.send_event_from_isr(INTERRUPT_EVENT_RC_READY);
+        // // 发送遥控器数据就绪事件（中断安全）
+        // interrupt_notify.send_event_from_isr(INTERRUPT_EVENT_RC_READY);
         
         // 重新启动DMA接收
         HAL_UARTEx_ReceiveToIdle_DMA(&huart3, rx_buffer, 18);

@@ -372,7 +372,7 @@
 #endif /* HAL_I2S_MODULE_ENABLED */
 
 #ifdef HAL_IWDG_MODULE_ENABLED
- #include "stm32f4xx_hal_iwdg.h"
+ // #include "stm32f4xx_hal_iwdg.h"
 #endif /* HAL_IWDG_MODULE_ENABLED */
 
 #ifdef HAL_LTDC_MODULE_ENABLED

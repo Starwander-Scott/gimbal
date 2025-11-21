@@ -27,7 +27,7 @@ void Mahony::update(float q[4], float ws[3], float as[3]) {
 
   // Calculate acceleration(g) field reference &
   // centripetal acceleration reference
-  Matrix 33fMultVector3f(RT_, _gw_, _gs_);  // -gs=R^T*(-gw)
+  Matrix33fMultVector3f(RT_, _gw_, _gs_);  // -gs=R^T*(-gw)
 
   // calculate error between measure & reference of acceleration
   Vector3fCross(as_, _gs_, ea_);

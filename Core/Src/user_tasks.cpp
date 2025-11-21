@@ -192,18 +192,12 @@
 #include "stm32f4xx_hal_can.h"
 #include "imu.h"
 #include "rc.h"
-#include "interrupt_notify.h"
 
 //================= 系统事件与控制算法占位 =================
 
-#include "system_events.h"
-
-// 系统事件标志组
+// 事件标志位（将来可移到独立的 system_events.h / .cpp）
 osEventFlagsAttr_t system_events_attr = { .name = "system_events" };
 osEventFlagsId_t system_events_handle = nullptr;
-
-// 系统状态变量
-static SystemState_t system_state = SYSTEM_INIT;
 
 constexpr uint32_t flag_imu_ready   = 1u << 0;
 constexpr uint32_t flag_motor_ctrl  = 1u << 1;
@@ -211,76 +205,14 @@ constexpr uint32_t flag_system_ok   = 1u << 2;
 // 预留：比如 CAN 接收完成标志
 // constexpr uint32_t flag_can_rx      = 1u << 3;
 
-// 控制算法实现
-#include "gimbal_controller.h"
-#include "rc.h"
-
-// 全局遥控器实例
-rc rc_controller;
-
+// 控制算法占位实现（将来可移动到 algorithm 模块）
 void control_algorithm() {
-    // 获取系统状态
-    SystemState_t state = get_system_state();
-    
-    // 处理遥控器拨杆状态
-    if (rc_controller.is_emergency_stop()) {
-        // 紧急停止
-        set_system_state(SYSTEM_EMERGENCY_STOP);
-        gimbal_controller.disable_system();
-        return;
-    } else if (rc_controller.is_system_enabled()) {
-        // 系统使能
-        set_system_state(SYSTEM_RUNNING);
-        gimbal_controller.enable_system();
-    } else if (rc_controller.is_system_disabled()) {
-        // 系统失能
-        set_system_state(SYSTEM_READY);
-        gimbal_controller.disable_system();
-        return;
-    }
-    
-    if (state == SYSTEM_EMERGENCY_STOP) {
-        // 紧急停止状态，不执行控制算法
-        gimbal_controller.disable_system();
-        return;
-    }
-    
-    // 获取遥控器输入（带死区处理）
-    float pitch_input = rc_controller.get_pitch_input();
-    float yaw_input = rc_controller.get_yaw_input();
-    
-    // 处理遥控器输入
-    gimbal_controller.process_remote_control(pitch_input, yaw_input);
-    
-    // 执行云台控制循环
-    gimbal_controller.control_loop();
+    // TODO: 在此调用姿态、遥控、电机等模块的控制逻辑
 }
 
-// 系统状态管理函数
-SystemState_t get_system_state() {
-    return system_state;
-}
-
-void set_system_state(SystemState_t state) {
-    system_state = state;
-}
-
-// 系统监控实现
+// 系统监控占位实现（将来可移动到独立模块）
 void system_monitoring() {
-    static uint32_t last_watchdog_feed = 0;
-    uint32_t current_tick = osKernelGetTickCount();
-    
-    // 看门狗喂狗（每1秒喂一次）
-    if (current_tick - last_watchdog_feed >= 1000) {
-        // HAL_IWDG_Refresh(&hiwdg);  // 看门狗喂狗
-        last_watchdog_feed = current_tick;
-    }
-    
-    // 系统状态检查
-    if (system_state == SYSTEM_ERROR || system_state == SYSTEM_EMERGENCY_STOP) {
-        // 系统异常处理
-        // 可以在这里设置错误标志或执行安全措施
-    }
+    // TODO: 看门狗、故障检测、温度、电压等监控逻辑
 }
 
 //================= IMU 实例与缓冲区 =================
@@ -293,7 +225,7 @@ constexpr float r_imu[3][3] = { { 1, 0, 0 }, { 0, 1, 0 }, { 0, 0, 1 } };
 
 IMU imu_sensor(dt, kg, g_threshold, r_imu, gyro_bias);
 uint8_t rx_buf[18];
-uint8_t rx_data[18];
+// uint8_t rx_data[18];
 
 //================= 任务属性定义 =================
 
@@ -384,21 +316,14 @@ constexpr osThreadAttr_t motor_task_attributes = {
 
 // CAN接收任务
 [[noreturn]] void can_recv_task(void *) {
-    InterruptEvent_t event;
     const uint32_t period_ms = 10;
     uint32_t tick = osKernelGetTickCount();
 
     for (;;) {
-        // 等待CAN接收事件（使用中断通知机制）
-        if (interrupt_notify.receive_event(&event, 10)) {
-            if (event == INTERRUPT_EVENT_CAN_RX) {
-                // 处理CAN接收数据
-                // 这里可以添加CAN数据处理逻辑
-                
-                // 设置CAN接收事件标志
-                // osEventFlagsSet(system_events_handle, flag_can_rx);
-            }
-        }
+        // TODO: 轮询/中断方式接收 CAN，解析后存入 rc / motor / status 等模块
+        // if (can_receive_data(rx_data)) {
+        //     osEventFlagsSet(system_events_handle, flag_can_rx);
+        // }
 
         osDelayUntil(tick += period_ms);
     }

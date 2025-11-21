@@ -17,9 +17,9 @@
 extern uint8_t stop_flag;
 extern CAN_HandleTypeDef hcan1;
 extern CAN_TxHeaderTypeDef tx_header;
-extern uint8_t tx_data[8];
+extern uint8_t tx_data_1[8];
 extern uint32_t can_tx_mail_box_;
-extern uint8_t tx_data[8];
+extern uint8_t tx_data_1[8];
 
 float target_speed_ = 500.0f;
 float target_angle_ = 80.0f;
@@ -96,8 +96,8 @@ void Motor::setCurrent(float current) {
     res3 = current_raw_;
 
     // 修改：打包 CAN 报文并发送（按照常见协议把电流放入 data[0..1]，大端）
-    tx_data[0] = static_cast<uint8_t>((current_raw_ >> 8) & 0xFF);
-    tx_data[1] = static_cast<uint8_t>((current_raw_) & 0xFF);
+    tx_data_1[0] = static_cast<uint8_t>((current_raw_ >> 8) & 0xFF);
+    tx_data_1[1] = static_cast<uint8_t>((current_raw_) & 0xFF);
 }
 
 
@@ -233,7 +233,7 @@ float Motor::FeedforwardIntensityCalc(float current_angle) {
     const float PI = 3.14159265358979323846f;
     float rad = current_angle * PI / 180.0f;
 
-    float torque_out = mass * g * lever * std::sinf(rad) * 16384 / 20;
+    float torque_out = mass * g * lever * std::sin(rad) * 16384 / 20;
     float current = torque_out / K_T;
 
     return current;
