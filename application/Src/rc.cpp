@@ -19,8 +19,9 @@ float rc::linear_mapping(float x, uint16_t in_min, uint16_t in_max, float out_mi
 
 rc::rc() {
     //  this->init();
-
+    dead_zone_ = 0.1f;  // 默认死区阈值
 }
+
 void rc::init(){
     // memcpy(this->rx_data,rx_buffer,18);
     // this->parse_control_frame(this->rx_data);
@@ -28,7 +29,44 @@ void rc::init(){
     channel1 = 0.f;
     channel2 = 0.f;
     channel3 = 0.f;
+    dead_zone_ = 0.1f;
+}
 
+// 设置死区阈值
+void rc::set_dead_zone(float dead_zone) {
+    dead_zone_ = dead_zone;
+}
+
+// 应用死区处理
+float rc::apply_dead_zone(float value) {
+    if (fabs(value) < dead_zone_) {
+        return 0.0f;
+    }
+    return value;
+}
+
+// 拨杆状态检查
+bool rc::is_system_enabled() {
+    return s2 == UP;  // 右拨杆最上档：系统使能
+}
+
+bool rc::is_system_disabled() {
+    return s2 == DOWN;  // 右拨杆最下档：系统失能
+}
+
+bool rc::is_emergency_stop() {
+    return s2 == DOWN;  // 右拨杆最下档：紧急停止
+}
+
+// 获取处理后的摇杆值
+float rc::get_pitch_input() {
+    // 右摇杆上下控制pitch（channel2：上下）
+    return apply_dead_zone(channel2);
+}
+
+float rc::get_yaw_input() {
+    // 右摇杆左右控制yaw（channel3：左右）
+    return apply_dead_zone(channel3);
 }
 
 

@@ -9,6 +9,11 @@
 #include <math.h>
 
 #include "can.h"// 新增：确保 CAN 类型可用并包含 HAL 声明
+#include "CanTxManager.h"
+
+
+
+
 extern uint8_t stop_flag;
 extern CAN_HandleTypeDef hcan1;
 extern CAN_TxHeaderTypeDef tx_header;

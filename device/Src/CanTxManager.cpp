@@ -1,8 +1,29 @@
-//
-// Created by cycsjtuer on 2025/11/11.
-//
+#include "CanTxManager.h"
+#include "Motor.h"
+#include "main.h"
+#include <stdint.h>
 
 
-//统一发包，
-//can分为发包和解包，使用数据后记得上锁mutexAcquire（，osWaitingForever）
+void CanTxManager::init() {
 
+}
+
+void CanTxManager::SendCurrent1to4() {
+
+
+
+    HAL_CAN_AddTxMessage(&hcan1, &tx_header_1, tx_data, NULL);
+}
+
+
+void CanTxManager::SendCurrent5to7() {
+
+    HAL_CAN_AddTxMessage(&hcan1, &tx_header_2, tx_data, NULL);
+}
+
+
+void CanTxManager::SetCurrent=(uint8_t motor_id, int16_t Current) {
+
+
+
+}

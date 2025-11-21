@@ -1,16 +1,289 @@
+//
+// #include "user_tasks.h"
+// #include "cmsis_os2.h"
+// #include "string.h"
+// #include "can.h"
+// #include "stm32f4xx_hal_can.h"
+// // #include "iwdg.h"
+// #include "imu.h"
+// #include "rc.h"
+//
+//
+// osEventFlagsAttr_t test_event_flags_attributes = {.name = "test_event_flags"};
+// osEventFlagsId_t test_event_flags_handle;
+//
+// constexpr float dt = 0.001f;
+// constexpr float kg = 0.1f;
+// constexpr float g_threshold = 0.1f;
+// constexpr float gyro_bias[3] = { 0.0f, 0.0f, 0.0f };
+// constexpr float r_imu[3][3] = { { 1, 0, 0 }, { 0, 1, 0 }, { 0, 0, 1 } };
+//
+//
+//
+// //Gimbal gimbal_controller;
+// IMU imu_sensor(dt, kg, g_threshold, r_imu, gyro_bias);
+// //RemoteControl rc_controller;
+//
+// uint8_t rx_buf[18];
+// uint8_t rx_data[18];
+//
+//
+//
+//
+// // Control任务 - 主控制循环
+// osThreadId_t control_task_handle;
+// constexpr osThreadAttr_t control_task_attributes = {
+//     .name = "control_task",
+//     .stack_size = 256 * 4,  // 1KB栈空间
+//     .priority = osPriorityHigh,  // 较高优先级
+// };
+//
+// // CAN任务 - 数据收发
+// osThreadId_t can_send_task_handle;
+// constexpr osThreadAttr_t can_send_task_attributes = {
+//     .name = "can_task",
+//     .stack_size = 192 * 4,  // 768字节栈空间
+//     .priority = osPriorityAboveNormal,  // 较高优先级保证通信实时性
+// };
+//
+// osThreadId_t can_recv_task_handle;
+// constexpr osThreadAttr_t can_recv_task_attributes = {
+//     .name = "can_task",
+//     .stack_size = 192 * 4,  // 768字节栈空间
+//     .priority = osPriorityAboveNormal,  // 较高优先级保证通信实时性
+// };
+//
+// // IMU任务 - 姿态解算
+// osThreadId_t imu_task_handle;
+// constexpr osThreadAttr_t imu_task_attributes = {
+//     .name = "imu_task",
+//     .stack_size = 320 * 4,  // 1.28KB栈空间（姿态解算需要较多栈空间）
+//     .priority = osPriorityNormal,
+// };
+//
+// // Motor任务 - 电机控制
+// osThreadId_t motor_task_handle;
+// constexpr osThreadAttr_t motor_task_attributes = {
+//     .name = "motor_task",
+//     .stack_size = 192 * 4,  // 768字节栈空间
+//     .priority = osPriorityRealtime,  // 最高优先级保证电机控制实时性
+// };
+//
+// // Control任务函数 - 主控制循环
+// [[noreturn]] void control_task(void *) {
+//     // 初始化代码
+//     //system_ticks = 0;
+//     //uint32_t ticks = osKernelGetTickCount();
+//
+//     while (true) {
+//         const auto tick = osKernelGetTickCount();
+//
+//         // 1. 等待IMU数据就绪
+//         osEventFlagsWait(system_events_handle, flag_imu_ready, osFlagsWaitAny, osWaitForever);
+//
+//         // 2. 执行控制算法
+//         control_algorithm();
+//
+//         // 3. 设置电机控制标志
+//         osEventFlagsSet(system_events_handle, flag_motor_ctrl);
+//
+//         // 4. 系统状态监测
+//         system_monitoring();
+//
+//         // 5. 设置系统正常标志
+//         osEventFlagsSet(system_events_handle, flag_system_ok);
+//
+//         // 固定频率控制（例如100Hz）
+//         osDelayUntil(tick + 10);  // 10ms周期
+//     }
+// }
+//
+// // CAN任务函数 - 数据通信
+// [[noreturn]] void can_send_task(void *) {
+//     // CAN初始化代码
+//
+//     uint32_t tick = osKernelGetTickCount();
+//     CAN_TxHeaderTypeDef tx_header;
+//     uint8_t tx_data[8];
+//     uint32_t tx_mailbox;
+//
+//
+//     // can_init();
+//     //
+//     // while (true) {
+//     //     const auto tick = osKernelGetTickCount();
+//     //
+//     //     // 1. CAN数据发送
+//     //     can_send_motor_command(motor_speed);
+//     //     can_send_system_status();
+//     //
+//     //     // 2. CAN数据接收处理
+//     //     if (can_receive_data(can_rx_data)) {
+//     //         // 设置CAN接收标志
+//     //         osEventFlagsSet(system_events_handle, flag_can_rx);
+//     //         can_data_processing(can_rx_data);
+//     //     }
+//     //
+//     //     // 3. 通信状态监测
+//     //     can_communication_check();
+//
+//         // 固定频率运行（例如50Hz）
+//         osDelayUntil(tick + 20);  // 20ms周期
+//     }
+// }
+//
+//
+// [[noreturn]] void can_recv_task(void *) {
+//
+// }
+//
+//
+//
+// // IMU任务函数 - 姿态解算
+// [[noreturn]] void imu_task(void *) {
+//     // IMU传感器初始化
+//     uint32_t tick = osKernelGetTickCount();
+//     for (;;)
+//     {
+//         imu_sensor.ReadSensor();
+//
+//         imu_sensor.UpdateAttitude();
+//
+//
+//
+//         osDelayUntil(tick += 1);
+//     }
+//
+//         // 2. 姿态
+//     }
+//
+//
+//
+//
+// [[noreturn]] void motor_task(void *) {
+//
+//     }
+//
+//
+//
+//
+//
+//
+//
+//     void user_tasks_init() {
+//         // test_task_handle = osThreadNew(test_task, nullptr, &test_task_attributes); // 创建任务
+//         // test_semaphore_handle = osSemaphoreNew(1, 0, &test_semaphore_attributes);
+//         // test_event_flags_handle = osEventFlagsNew(&test_event_flags_attributes);
+//         control_task_handle = osThreadNew(control_task, nullptr, &control_task_attributes);
+//         can_send_task_handle = osThreadNew(can_send_task, nullptr, &can_send_task_attributes);
+//         can_recv_task_handle = osThreadNew(can_recv_task, nullptr, &can_recv_task_attributes);
+//         imu_task_handle = osThreadNew(imu_task, nullptr, &imu_task_attributes);
+//         motor_task_handle = osThreadNew(motor_task, nullptr, &motor_task_attributes);
+//         // test2_task_handle = osThreadNew(test2_task, nullptr, &test2_task_attributes);
+//     }
 
+
+
+// C++
 #include "user_tasks.h"
 #include "cmsis_os2.h"
 #include "string.h"
 #include "can.h"
 #include "stm32f4xx_hal_can.h"
-// #include "iwdg.h"
 #include "imu.h"
 #include "rc.h"
+#include "interrupt_notify.h"
 
+//================= 系统事件与控制算法占位 =================
 
-osEventFlagsAttr_t test_event_flags_attributes = {.name = "test_event_flags"};
-osEventFlagsId_t test_event_flags_handle;
+#include "system_events.h"
+
+// 系统事件标志组
+osEventFlagsAttr_t system_events_attr = { .name = "system_events" };
+osEventFlagsId_t system_events_handle = nullptr;
+
+// 系统状态变量
+static SystemState_t system_state = SYSTEM_INIT;
+
+constexpr uint32_t flag_imu_ready   = 1u << 0;
+constexpr uint32_t flag_motor_ctrl  = 1u << 1;
+constexpr uint32_t flag_system_ok   = 1u << 2;
+// 预留：比如 CAN 接收完成标志
+// constexpr uint32_t flag_can_rx      = 1u << 3;
+
+// 控制算法实现
+#include "gimbal_controller.h"
+#include "rc.h"
+
+// 全局遥控器实例
+rc rc_controller;
+
+void control_algorithm() {
+    // 获取系统状态
+    SystemState_t state = get_system_state();
+    
+    // 处理遥控器拨杆状态
+    if (rc_controller.is_emergency_stop()) {
+        // 紧急停止
+        set_system_state(SYSTEM_EMERGENCY_STOP);
+        gimbal_controller.disable_system();
+        return;
+    } else if (rc_controller.is_system_enabled()) {
+        // 系统使能
+        set_system_state(SYSTEM_RUNNING);
+        gimbal_controller.enable_system();
+    } else if (rc_controller.is_system_disabled()) {
+        // 系统失能
+        set_system_state(SYSTEM_READY);
+        gimbal_controller.disable_system();
+        return;
+    }
+    
+    if (state == SYSTEM_EMERGENCY_STOP) {
+        // 紧急停止状态，不执行控制算法
+        gimbal_controller.disable_system();
+        return;
+    }
+    
+    // 获取遥控器输入（带死区处理）
+    float pitch_input = rc_controller.get_pitch_input();
+    float yaw_input = rc_controller.get_yaw_input();
+    
+    // 处理遥控器输入
+    gimbal_controller.process_remote_control(pitch_input, yaw_input);
+    
+    // 执行云台控制循环
+    gimbal_controller.control_loop();
+}
+
+// 系统状态管理函数
+SystemState_t get_system_state() {
+    return system_state;
+}
+
+void set_system_state(SystemState_t state) {
+    system_state = state;
+}
+
+// 系统监控实现
+void system_monitoring() {
+    static uint32_t last_watchdog_feed = 0;
+    uint32_t current_tick = osKernelGetTickCount();
+    
+    // 看门狗喂狗（每1秒喂一次）
+    if (current_tick - last_watchdog_feed >= 1000) {
+        // HAL_IWDG_Refresh(&hiwdg);  // 看门狗喂狗
+        last_watchdog_feed = current_tick;
+    }
+    
+    // 系统状态检查
+    if (system_state == SYSTEM_ERROR || system_state == SYSTEM_EMERGENCY_STOP) {
+        // 系统异常处理
+        // 可以在这里设置错误标志或执行安全措施
+    }
+}
+
+//================= IMU 实例与缓冲区 =================
 
 constexpr float dt = 0.001f;
 constexpr float kg = 0.1f;
@@ -18,173 +291,170 @@ constexpr float g_threshold = 0.1f;
 constexpr float gyro_bias[3] = { 0.0f, 0.0f, 0.0f };
 constexpr float r_imu[3][3] = { { 1, 0, 0 }, { 0, 1, 0 }, { 0, 0, 1 } };
 
-
-
-//Gimbal gimbal_controller;
 IMU imu_sensor(dt, kg, g_threshold, r_imu, gyro_bias);
-//RemoteControl rc_controller;
-
 uint8_t rx_buf[18];
 uint8_t rx_data[18];
 
-
-
+//================= 任务属性定义 =================
 
 // Control任务 - 主控制循环
 osThreadId_t control_task_handle;
 constexpr osThreadAttr_t control_task_attributes = {
-    .name = "control_task",
-    .stack_size = 256 * 4,  // 1KB栈空间
-    .priority = osPriorityHigh,  // 较高优先级
+    .name       = "control_task",
+    .stack_size = 256 * 4,
+    .priority   = osPriorityHigh,
 };
 
-// CAN任务 - 数据收发
+// CAN发送任务
 osThreadId_t can_send_task_handle;
 constexpr osThreadAttr_t can_send_task_attributes = {
-    .name = "can_task",
-    .stack_size = 192 * 4,  // 768字节栈空间
-    .priority = osPriorityAboveNormal,  // 较高优先级保证通信实时性
+    .name       = "can_task_send",
+    .stack_size = 192 * 4,
+    .priority   = osPriorityAboveNormal,
 };
 
+// CAN接收任务
 osThreadId_t can_recv_task_handle;
 constexpr osThreadAttr_t can_recv_task_attributes = {
-    .name = "can_task",
-    .stack_size = 192 * 4,  // 768字节栈空间
-    .priority = osPriorityAboveNormal,  // 较高优先级保证通信实时性
+    .name       = "can_task_recv",
+    .stack_size = 192 * 4,
+    .priority   = osPriorityAboveNormal,
 };
 
 // IMU任务 - 姿态解算
 osThreadId_t imu_task_handle;
 constexpr osThreadAttr_t imu_task_attributes = {
-    .name = "imu_task",
-    .stack_size = 320 * 4,  // 1.28KB栈空间（姿态解算需要较多栈空间）
-    .priority = osPriorityNormal,
+    .name       = "imu_task",
+    .stack_size = 320 * 4,
+    .priority   = osPriorityNormal,
 };
 
 // Motor任务 - 电机控制
 osThreadId_t motor_task_handle;
 constexpr osThreadAttr_t motor_task_attributes = {
-    .name = "motor_task",
-    .stack_size = 192 * 4,  // 768字节栈空间
-    .priority = osPriorityRealtime,  // 最高优先级保证电机控制实时性
+    .name       = "motor_task",
+    .stack_size = 192 * 4,
+    .priority   = osPriorityRealtime,
 };
+
+//================= 任务函数实现 =================
 
 // Control任务函数 - 主控制循环
 [[noreturn]] void control_task(void *) {
-    // 初始化代码
-    //system_ticks = 0;
-    //uint32_t ticks = osKernelGetTickCount();
+    const uint32_t period_ms = 10; // 100 Hz
+    uint32_t tick = osKernelGetTickCount();
 
-    while (true) {
-        const auto tick = osKernelGetTickCount();
-
-        // 1. 等待IMU数据就绪
-        osEventFlagsWait(system_events_handle, flag_imu_ready, osFlagsWaitAny, osWaitForever);
+    for (;;) {
+        // 1. 等待 IMU 数据就绪
+        osEventFlagsWait(system_events_handle, flag_imu_ready,
+                         osFlagsWaitAny, osWaitForever);
 
         // 2. 执行控制算法
         control_algorithm();
 
-        // 3. 设置电机控制标志
+        // 3. 通知电机控制任务可以更新电机输出
         osEventFlagsSet(system_events_handle, flag_motor_ctrl);
 
         // 4. 系统状态监测
         system_monitoring();
 
-        // 5. 设置系统正常标志
+        // 5. 标记系统状态正常
         osEventFlagsSet(system_events_handle, flag_system_ok);
 
-        // 固定频率控制（例如100Hz）
-        osDelayUntil(tick + 10);  // 10ms周期
+        osDelayUntil(tick += period_ms);
     }
 }
 
-// CAN任务函数 - 数据通信
+// CAN发送任务 - 数据通信
 [[noreturn]] void can_send_task(void *) {
-    // CAN初始化代码
-
+    const uint32_t period_ms = 20; // 50 Hz
     uint32_t tick = osKernelGetTickCount();
-    CAN_TxHeaderTypeDef tx_header;
-    uint8_t tx_data[8];
-    uint32_t tx_mailbox;
 
+    CAN_TxHeaderTypeDef tx_header{};
+    uint8_t tx_data[8]{};
+    uint32_t tx_mailbox = 0;
 
-    // can_init();
-    //
-    // while (true) {
-    //     const auto tick = osKernelGetTickCount();
-    //
-    //     // 1. CAN数据发送
-    //     can_send_motor_command(motor_speed);
-    //     can_send_system_status();
-    //
-    //     // 2. CAN数据接收处理
-    //     if (can_receive_data(can_rx_data)) {
-    //         // 设置CAN接收标志
-    //         osEventFlagsSet(system_events_handle, flag_can_rx);
-    //         can_data_processing(can_rx_data);
-    //     }
-    //
-    //     // 3. 通信状态监测
-    //     can_communication_check();
+    for (;;) {
+        // TODO: 根据控制结果封装并发送 CAN 数据
+        // HAL_CAN_AddTxMessage(&hcan1, &tx_header, tx_data, &tx_mailbox);
 
-        // 固定频率运行（例如50Hz）
-        osDelayUntil(tick + 20);  // 20ms周期
+        osDelayUntil(tick += period_ms);
     }
 }
 
-
+// CAN接收任务
 [[noreturn]] void can_recv_task(void *) {
+    InterruptEvent_t event;
+    const uint32_t period_ms = 10;
+    uint32_t tick = osKernelGetTickCount();
 
+    for (;;) {
+        // 等待CAN接收事件（使用中断通知机制）
+        if (interrupt_notify.receive_event(&event, 10)) {
+            if (event == INTERRUPT_EVENT_CAN_RX) {
+                // 处理CAN接收数据
+                // 这里可以添加CAN数据处理逻辑
+                
+                // 设置CAN接收事件标志
+                // osEventFlagsSet(system_events_handle, flag_can_rx);
+            }
+        }
+
+        osDelayUntil(tick += period_ms);
+    }
 }
-
-
 
 // IMU任务函数 - 姿态解算
 [[noreturn]] void imu_task(void *) {
-    // IMU传感器初始化
+    const uint32_t period_ms = 1; // 1 kHz，根据硬件情况调整
     uint32_t tick = osKernelGetTickCount();
-    for (;;)
-    {
-        imu_sensor.ReadSensor();
 
-        imu_sensor.UpdateAttitude();
+    // 根据需要设置初始欧拉角（单位：度），这里全部置 0
+    EulerAngle_t init_angle(0.0f, 0.0f, 0.0f);
+    imu_sensor.init(init_angle);
 
+    for (;;) {
+        // 读取 BMI088 传感器数据
+        imu_sensor.readSensor();
+  
+        // 使用 Mahony 算法更新姿态
+        imu_sensor.update();
 
+        // 通知控制任务 IMU 数据已更新
+        osEventFlagsSet(system_events_handle, flag_imu_ready);
 
-        osDelayUntil(tick += 1);
+        osDelayUntil(tick += period_ms);
     }
+}
 
-        // 2. 姿态
-    }
-
-
-
-
+// Motor任务函数 - 电机控制
 [[noreturn]] void motor_task(void *) {
+    const uint32_t period_ms = 5;
+    uint32_t tick = osKernelGetTickCount();
 
+    for (;;) {
+        // 如果需要基于事件触发，也可以在这里等待 flag_motor_ctrl
+        // osEventFlagsWait(system_events_handle, flag_motor_ctrl, osFlagsWaitAny, osWaitForever);
+
+        // TODO: 读取控制量，更新电机（通过 CAN / PWM 等）
+        // motor_update();
+
+        osDelayUntil(tick += period_ms);
     }
+}
 
+//================= 任务初始化 =================
 
+void user_tasks_init() {
+    // 创建系统事件标志组
+    system_events_handle = osEventFlagsNew(&system_events_attr);
 
-
-
-
-
-    void user_tasks_init() {
-        // test_task_handle = osThreadNew(test_task, nullptr, &test_task_attributes); // 创建任务
-        // test_semaphore_handle = osSemaphoreNew(1, 0, &test_semaphore_attributes);
-        // test_event_flags_handle = osEventFlagsNew(&test_event_flags_attributes);
-        control_task_handle = osThreadNew(control_task, nullptr, &control_task_attributes);
-        can_send_task_handle = osThreadNew(can_send_task, nullptr, &can_send_task_attributes);
-        can_recv_task_handle = osThreadNew(can_recv_task, nullptr, &can_recv_task_attributes);
-        imu_task_handle = osThreadNew(imu_task, nullptr, &imu_task_attributes);
-        motor_task_handle = osThreadNew(motor_task, nullptr, &motor_task_attributes);
-        // test2_task_handle = osThreadNew(test2_task, nullptr, &test2_task_attributes);
-    }
-
-
-
-
+    control_task_handle   = osThreadNew(control_task,   nullptr, &control_task_attributes);
+    can_send_task_handle  = osThreadNew(can_send_task, nullptr, &can_send_task_attributes);
+    can_recv_task_handle  = osThreadNew(can_recv_task, nullptr, &can_recv_task_attributes);
+    imu_task_handle       = osThreadNew(imu_task,      nullptr, &imu_task_attributes);
+    motor_task_handle     = osThreadNew(motor_task,    nullptr, &motor_task_attributes);
+}
 
 
 
@@ -216,129 +486,6 @@ constexpr osThreadAttr_t motor_task_attributes = {
 
 
 
-
-
-
-
-
-
-//
-// //
-// // Created by cycsjtuer on 2025/11/11.
-// //
-// //
-// // Created by cycsjtuer on 2025/11/1.
-// //
-//
-// #include "user_tasks.h"
-// #include "cmsis_os2.h"
-//
-//
-// uint32_t count = 0;
-// uint32_t send1 = 0;
-// uint32_t send2 = 0;
-// uint32_t recv = 0;
-// constexpr auto flag_1 = 1u << 0;
-// constexpr auto flag_2 = 1u << 1;
-//
-//
-// osSemaphoreAttr_t test_semaphore_attributes = {.name = "test_semaphore"};
-// osSemaphoreId_t test_semaphore_handle;
-// osEventFlagsAttr_t test_event_flags_attributes = {.name = "test_event_flags"};
-// osEventFlagsId_t test_event_flags_handle;
-//
-//
-// osThreadId_t test_task_handle; // 任务句柄，用于引用任务
-// constexpr osThreadAttr_t test_task_attributes = {
-//     .name = "test_task", // 任务名称，便于调试
-//     .stack_size = 128 * 4, // 栈大小=512字节（128字*4字节/字）
-//     .priority = osPriorityNormal, // 优先级设为普通
-// };
-//
-//
-// osThreadId_t test2_task_handle; // 任务句柄，用于引用任务
-// constexpr osThreadAttr_t test2_task_attributes = {
-//     .name = "test2_task", // 任务名称，便于调试
-//     .stack_size = 128 * 4, // 栈大小=512字节（128字*4字节/字）
-//     .priority = osPriorityNormal, // 优先级设为普通
-// };
-//
-// osThreadId_t test3_task_handle; // 任务句柄，用于引用任务
-// constexpr osThreadAttr_t test3_task_attributes = {
-//     .name = "test3_task", // 任务名称，便于调试
-//     .stack_size = 128 * 4, // 栈大小=512字节（128字*4字节/字）
-//     .priority = osPriorityNormal, // 优先级设为普通
-// };
-//
-// //
-// // [[noreturn]] void test_task(void *) {
-// //     while (true) {
-// //         const auto tick = osKernelGetTickCount(); // 获取当前系统tick计数
-// //         ++count; // 递增全局计数器
-// //         osDelayUntil(tick + 1); // 延迟直到下一个tick周期
-// //     }
-// // }
-// //
-// //
-//
-// [[noreturn]] void test_task(void *) {
-//     // while (true) {
-//     //     const auto tick = osKernelGetTickCount();
-//     //     if (send++ % 5 == 0) {
-//     //         osSemaphoreRelease(test_semaphore_handle);
-//     //     }
-//     //     osDelayUntil(tick + 1);
-//     // }
-//     while (true) {
-//         const auto tick = osKernelGetTickCount();
-//         send1++;
-//         if (send1 % 7 == 0) {
-//             osEventFlagsSet(test_event_flags_handle, flag_1);
-//         } else if (send1 % 7 == 1) {
-//             osEventFlagsClear(test_event_flags_handle, flag_1);
-//         }
-//         osDelayUntil(tick + 100);
-//     }
-//     //
-//     // osEventFlagsWait(test_event_flags_handle, flag_1 | flag_2,osFlagsWaitAll,osWaitForever);
-//     // osEventFlagsClear(test_event_flags_handle, flag_1 | flag_2);
-//     // osEventFlagsSet(test_event_flags_handle, flag_1 | flag_2);
-// }
-//
-// [[noreturn]] void test2_task(void *) {
-//     while (true) {
-//         const auto tick = osKernelGetTickCount();
-//         send2++;
-//         osEventFlagsSet(test_event_flags_handle, flag_2);
-//         osDelayUntil(tick + 100);
-//     }
-// }
-//
-// [[noreturn]] void test3_task(void *) {
-//     while (true) {
-//         osEventFlagsWait(test_event_flags_handle, flag_1 | flag_2,osFlagsWaitAll,osWaitForever);
-//         recv++;
-//         osEventFlagsClear(test_event_flags_handle, flag_1 | flag_2);
-//     }
-// }
-//
-// // [[noreturn]] void test2_task(void *) {
-// //     while (true) {
-// //         osSemaphoreAcquire(test_semaphore_handle,osWaitForever);
-// //         recv++;
-// //     }
-// // }
-//
-//
-// void user_tasks_init() {
-//     // test_task_handle = osThreadNew(test_task, nullptr, &test_task_attributes); // 创建任务
-//     // test_semaphore_handle = osSemaphoreNew(1, 0, &test_semaphore_attributes);
-//     test_event_flags_handle = osEventFlagsNew(&test_event_flags_attributes);
-//     test_task_handle = osThreadNew(test_task, nullptr, &test_task_attributes);
-//     test2_task_handle = osThreadNew(test2_task, nullptr, &test2_task_attributes);
-//     test3_task_handle = osThreadNew(test3_task, nullptr, &test3_task_attributes);
-//     // test2_task_handle = osThreadNew(test2_task, nullptr, &test2_task_attributes);
-// }
 
 
 
