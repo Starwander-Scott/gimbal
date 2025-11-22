@@ -192,8 +192,13 @@
 #include "stm32f4xx_hal_can.h"
 #include "imu.h"
 #include "rc.h"
+// #include "gimbal_controller.h"
 
+
+IMU imu; // 创建 IMU 实例
+// gimbal_controller.set_imu(&imu_instance);
 //================= 系统事件与控制算法占位 =================
+
 
 // 事件标志位（将来可移到独立的 system_events.h / .cpp）
 osEventFlagsAttr_t system_events_attr = { .name = "system_events" };

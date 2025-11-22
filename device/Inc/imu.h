@@ -36,8 +36,10 @@ public:
   float* acc_calculate();
   float* gyro_calculate();
   int got_data();
+  float* getAccel() { return accel_sensor_; }
+  float* getGyro()  { return gyro_sensor_; }
+  uint8_t test_flag;
 
-public:
   // IMU 原始数据
   ImuRawData_t raw_data_;
 

@@ -82,7 +82,7 @@
           </BeforeMake>
           <AfterMake>
             <RunUserProg1>0</RunUserProg1>
-            <RunUserProg2>1</RunUserProg2>
+            <RunUserProg2>0</RunUserProg2>
             <UserProg1Name></UserProg1Name>
             <UserProg2Name></UserProg2Name>
             <UserProg1Dos16Mode>0</UserProg1Dos16Mode>
@@ -139,7 +139,7 @@
           </Flash1>
           <bUseTDR>1</bUseTDR>
           <Flash2>BIN\UL2V8M.DLL</Flash2>
-          <Flash3></Flash3>
+          <Flash3>"" ()</Flash3>
           <Flash4></Flash4>
           <pFcarmOut></pFcarmOut>
           <pFcarmGrp></pFcarmGrp>
@@ -395,26 +395,6 @@
         <Group>
           <GroupName>Application/User/Core</GroupName>
           <Files>
-            <File>
-              <FileName>rc.cpp</FileName>
-              <FileType>8</FileType>
-              <FilePath>..\application\Src\rc.cpp</FilePath>
-            </File>
-            <File>
-              <FileName>syscalls.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Core\Src\syscalls.c</FilePath>
-            </File>
-            <File>
-              <FileName>sysmem.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Core\Src\sysmem.c</FilePath>
-            </File>
-            <File>
-              <FileName>system_stm32f4xx.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Core\Src\system_stm32f4xx.c</FilePath>
-            </File>
             <File>
               <FileName>main.c</FileName>
               <FileType>1</FileType>
@@ -993,11 +973,6 @@
           <GroupName>User_code</GroupName>
           <Files>
             <File>
-              <FileName>rc.cpp</FileName>
-              <FileType>8</FileType>
-              <FilePath>..\application\Src\rc.cpp</FilePath>
-            </File>
-            <File>
               <FileName>bmi088.cpp</FileName>
               <FileType>8</FileType>
               <FilePath>..\device\Src\bmi088.cpp</FilePath>
@@ -1021,6 +996,16 @@
               <FileName>motor.cpp</FileName>
               <FileType>8</FileType>
               <FilePath>..\device\Src\motor.cpp</FilePath>
+            </File>
+            <File>
+              <FileName>pid.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\algorithm\Src\pid.cpp</FilePath>
+            </File>
+            <File>
+              <FileName>user_tasks.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\Core\Src\user_tasks.cpp</FilePath>
             </File>
           </Files>
         </Group>

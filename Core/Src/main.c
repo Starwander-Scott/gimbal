@@ -25,11 +25,14 @@
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
-#include "CanTxManager.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+
 #include "math.h"
+#include "CanTxManager.h"
+#include "bmi088.h"
+#include "user_tasks.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -111,9 +114,10 @@ int main(void)
   /* USER CODE BEGIN 2 */
   HAL_CAN_ConfigFilter(&hcan1, &filter_config);
   HAL_CAN_Start(&hcan1);
-
   HAL_CAN_ActivateNotification(&hcan1, CAN_IT_RX_FIFO0_MSG_PENDING);
   HAL_TIM_Base_Start_IT(&htim7);
+  user_tasks_init();
+  bmi088_init();
   /* USER CODE END 2 */
 
   /* Init scheduler */
@@ -197,14 +201,14 @@ void SystemClock_Config(void)
 // void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 // {
 //   /* USER CODE BEGIN Callback 0 */
-//
+// // // // // //
 //   /* USER CODE END Callback 0 */
 //   if (htim->Instance == TIM6)
 //   {
 //     HAL_IncTick();
 //   }
 //   /* USER CODE BEGIN Callback 1 */
-//
+// // // // // //
 //   /* USER CODE END Callback 1 */
 // }
 

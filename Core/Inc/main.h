@@ -67,16 +67,6 @@ void Error_Handler(void);
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus
-extern "C" {
-#endif
-
-// extern IWDG_HandleTypeDef hiwdg;
-
-#ifdef __cplusplus
-}
-#endif
-
-#ifdef __cplusplus
 }
 #endif
 

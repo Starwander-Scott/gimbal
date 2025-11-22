@@ -16,15 +16,21 @@ extern const uint32_t flag_imu_ready;
 extern const uint32_t flag_motor_ctrl;
 extern const uint32_t flag_system_ok;
 
-// 任务创建函数
-void user_tasks_init();
+#ifdef __cplusplus
+extern "C" {
+#endif
+    void user_tasks_init();
+#ifdef __cplusplus
+}
+#endif
 
-// 任务入口函数（CMSIS-RTOS2 要求 C 接口）
-[[noreturn]] void control_task(void *);
-[[noreturn]] void can_send_task(void *);
-[[noreturn]] void can_recv_task(void *);
-[[noreturn]] void imu_task(void *);
-[[noreturn]] void motor_task(void *);
+
+// // 任务入口函数（CMSIS-RTOS2 要求 C 接口）
+// [[noreturn]] void control_task(void *);
+// [[noreturn]] void can_send_task(void *);
+// [[noreturn]] void can_recv_task(void *);
+// [[noreturn]] void imu_task(void *);
+// [[noreturn]] void motor_task(void *);
 
 // 控制算法和系统监控接口
 void control_algorithm();

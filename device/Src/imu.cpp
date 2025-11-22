@@ -130,41 +130,41 @@ void IMU::readSensor() {
   raw_data_.temp[0] = 0.0f;
 }
 
-// 姿态更新：Mahony 融合，更新 q\_ / euler\_
-void IMU::update(void) {
-  // Mahony 输入：当前四元数、角速度(rad/s)、加速度(m/s^2)
-  mahony_.update(q_, gyro_sensor_, accel_sensor_);
-
-  // 四元数 -> 欧拉角（Z-Y-X，yaw-pitch-roll）
-  const float qw = q_[0];
-  const float qx = q_[1];
-  const float qy = q_[2];
-  const float qz = q_[3];
-
-  // 参考常见转换公式
-  float sinr_cosp = 2.0f * (qw * qx + qy * qz);
-  float cosr_cosp = 1.0f - 2.0f * (qx * qx + qy * qy);
-  float roll  = std::atan2(sinr_cosp, cosr_cosp);
-
-  float sinp = 2.0f * (qw * qy - qz * qx);
-  float pitch;
-  if (std::fabs(sinp) >= 1.0f)
-    pitch = std::copysign(PI / 2.0f, sinp);
-  else
-    pitch = std::asin(sinp);
-
-  float siny_cosp = 2.0f * (qw * qz + qx * qy);
-  float cosy_cosp = 1.0f - 2.0f * (qy * qy + qz * qz);
-  float yaw   = std::atan2(siny_cosp, cosy_cosp);
-
-  euler_rad_.roll  = roll;
-  euler_rad_.pitch = pitch;
-  euler_rad_.yaw   = yaw;
-
-  euler_deg_.roll  = rad2deg(roll);
-  euler_deg_.pitch = rad2deg(pitch);
-  euler_deg_.yaw   = rad2deg(yaw);
-}
+// // 姿态更新：Mahony 融合，更新 q\_ / euler\_
+// void IMU::update(void) {
+//   // Mahony 输入：当前四元数、角速度(rad/s)、加速度(m/s^2)
+//   mahony_.update(q_, gyro_sensor_, accel_sensor_);
+//
+//   // 四元数 -> 欧拉角（Z-Y-X，yaw-pitch-roll）
+//   const float qw = q_[0];
+//   const float qx = q_[1];
+//   const float qy = q_[2];
+//   const float qz = q_[3];
+//
+//   // 参考常见转换公式
+//   float sinr_cosp = 2.0f * (qw * qx + qy * qz);
+//   float cosr_cosp = 1.0f - 2.0f * (qx * qx + qy * qy);
+//   float roll  = std::atan2(sinr_cosp, cosr_cosp);
+//
+//   float sinp = 2.0f * (qw * qy - qz * qx);
+//   float pitch;
+//   if (std::fabs(sinp) >= 1.0f)
+//     pitch = std::copysign(PI / 2.0f, sinp);
+//   else
+//     pitch = std::asin(sinp);
+//
+//   float siny_cosp = 2.0f * (qw * qz + qx * qy);
+//   float cosy_cosp = 1.0f - 2.0f * (qy * qy + qz * qz);
+//   float yaw   = std::atan2(siny_cosp, cosy_cosp);
+//
+//   euler_rad_.roll  = roll;
+//   euler_rad_.pitch = pitch;
+//   euler_rad_.yaw   = yaw;
+//
+//   euler_deg_.roll  = rad2deg(roll);
+//   euler_deg_.pitch = rad2deg(pitch);
+//   euler_deg_.yaw   = rad2deg(yaw);
+// }
 
 // 这里简单返回 1，表示“有数据”
 int IMU::got_data() {
@@ -187,13 +187,13 @@ void imu_destroy(void* imu_ptr) {
 float* imu_acc_calculate(void* imu_ptr) {
   auto* imu = static_cast<IMU*>(imu_ptr);
   imu->readSensor();
-  return imu->acc_calculate();   // 如无单独实现，可直接返回 accel_sensor\_
+  return imu->getAccel();   // 如无单独实现，可直接返回 accel_sensor\_
 }
 
 float* imu_gyro_calculate(void* imu_ptr) {
   auto* imu = static_cast<IMU*>(imu_ptr);
   imu->readSensor();
-  return imu->gyro_calculate();  // 如无单独实现，可直接返回 gyro_sensor\_
+  return imu->getGyro() ;  // 如无单独实现，可直接返回 gyro_sensor\_
 }
 
 int imu_got_data(void* imu_ptr) {
