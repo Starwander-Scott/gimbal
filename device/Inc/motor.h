@@ -54,6 +54,7 @@ private:
     float fdb_speed_, feedforward_speed_;
     float feedforward_intensity_, output_intensity_;
     float gravity_ff = 0.0f;
+    float target_angle_, target_speed_;
     uint16_t current_raw_ = 0;
 
 

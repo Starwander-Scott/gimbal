@@ -176,4 +176,5 @@ final/callback.o: ..\device\Src\callback.cpp \
   C:\Keil_v5\ARM\ARMCLANG\Bin\..\include\libcxx\__undef_macros \
   C:\Keil_v5\ARM\ARMCLANG\Bin\..\include\libcxx\stdlib.h \
   C:\Keil_v5\ARM\ARMCLANG\Bin\..\include\stdlib.h ..\device\Inc\motor.h \
-  ..\algorithm\Inc\pid.h ..\Core\Inc\tim.h
+  ..\algorithm\Inc\pid.h ..\Core\Inc\tim.h ..\device\Inc\imu.h \
+  ..\algorithm\Inc\mahony.h

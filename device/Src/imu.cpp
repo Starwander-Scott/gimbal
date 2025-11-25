@@ -29,6 +29,7 @@ static inline float rad2deg(float x) { return x * 180.0f / PI; }
 #define BMI088_GYRO_RANGE_125DPS  0x04
 
 //==================== IMU 类实现 ====================
+// bmi088_accel_write_single_reg(0x41,0x01);
 
 IMU::IMU(const float& dt, const float& kg, const float& g_thres,
          const float R_imu[3][3], const float gyro_bias[3])
@@ -48,6 +49,7 @@ IMU::IMU(const float& dt, const float& kg, const float& g_thres,
   std::memset(accel_sensor_, 0, sizeof(accel_sensor_));
   std::memset(accel_world_, 0, sizeof(accel_world_));
   q_[0] = 1.0f; q_[1] = q_[2] = q_[3] = 0.0f;
+  test_flag += 1;
 }
 
 IMU::IMU()
@@ -79,7 +81,7 @@ void IMU::init(EulerAngle_t euler_deg_init) {
   q_[3] = cr * cp * sy - sr * sp * cy;
 }
 
-// 读取 BMI088 传感器原始数据并转换为物理单位
+// 读取 BMI088 传感器原始数据并转换为物理单位    (重要！！！！！！！！！！！)
 void IMU::readSensor() {
   uint8_t raw_range;
   int16_t raw_acc[3];
@@ -87,6 +89,7 @@ void IMU::readSensor() {
 
   //---------- 加速度 ----------
   bmi088_accel_read_reg(0x41, &raw_range, 1);
+  raw_range_ = raw_range;
   float acc_range_factor;
   switch (raw_range & 0x03) {
     case BMI088_ACCEL_RANGE_3G:  acc_range_factor = 3.0f  / 32768.0f; break;
@@ -165,6 +168,39 @@ void IMU::readSensor() {
 //   euler_deg_.pitch = rad2deg(pitch);
 //   euler_deg_.yaw   = rad2deg(yaw);
 // }
+
+
+void IMU::update(void) {
+  // 滤波器系数，可根据实际效果调整
+  constexpr float alpha = 0.98f;
+
+  // 1. 从加速度计数据计算俯仰角(pitch)和横滚角(roll)
+  //    atan2f提供了更好的数值稳定性
+  float s = sqrtf(accel_sensor_[1] * accel_sensor_[1] + accel_sensor_[2] * accel_sensor_[2]);
+  float pitch_from_acc = atan2f(-accel_sensor_[0], s);
+  float roll_from_acc = atan2f(accel_sensor_[1], accel_sensor_[2]);
+
+  // 2. 陀螺仪积分 + 加速度计修正，更新欧拉角（弧度）
+  // 横滚角(Roll)
+  euler_rad_.roll = alpha * (euler_rad_.roll + gyro_sensor_[0] * dt_) + (1.0f - alpha) * roll_from_acc;
+  // 俯仰角(Pitch)
+  euler_rad_.pitch = alpha * (euler_rad_.pitch + gyro_sensor_[1] * dt_) + (1.0f - alpha) * pitch_from_acc;
+  // 偏航角(Yaw) - 简单积分，无加速度计修正
+  // 注意：偏航角会因陀螺仪漂移而产生累积误差。精确的偏航角需要磁力计进行修正。
+  euler_rad_.yaw += gyro_sensor_[2] * dt_;
+
+
+  euler_deg_.roll = euler_rad_.roll * 180 / PI;
+  euler_deg_.pitch = euler_rad_.pitch * 180 / PI;
+  euler_deg_.yaw = euler_rad_.yaw * 180 / PI;
+}
+
+//TOD: 添加零点漂移的抵消
+
+
+
+
+
 
 // 这里简单返回 1，表示“有数据”
 int IMU::got_data() {

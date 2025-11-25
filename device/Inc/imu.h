@@ -32,13 +32,14 @@ public:
   // 读取bmi088数据：加速度，角速度，温度
   void readSensor();
   // 利用线性互补滤波算法，上一时刻姿态角，加速度与角速度更新当前姿态角
-  void update(void);
+  void update();
   float* acc_calculate();
   float* gyro_calculate();
   int got_data();
   float* getAccel() { return accel_sensor_; }
   float* getGyro()  { return gyro_sensor_; }
   uint8_t test_flag;
+  uint8_t raw_range_;
 
   // IMU 原始数据
   ImuRawData_t raw_data_;
@@ -58,6 +59,7 @@ public:
   float q_[4] = {1, 0, 0, 0};
 
 private:
+  float dt_;
   // 传感器变换矩阵(对应imu安装方向)
   float R_imu_[3][3] = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
   // 陀螺仪零飘补偿项

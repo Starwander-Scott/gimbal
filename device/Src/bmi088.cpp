@@ -5,6 +5,7 @@
 #include "main.h"
 #include "spi.h"
 #include "gpio.h"
+#include "cmsis_os2.h"
 
 //uint8_t acel[6];
 //uint8_t ac[6];
@@ -89,19 +90,27 @@ void bmi088_init(void) {
   // Soft Reset ACCEL
   BMI088_ACCEL_NS_L();
   bmi088_write_reg(0x7E, 0xB6); // Write 0xB6 to ACC_SOFTRESET(0x7E)
-  HAL_Delay(1);
+  osDelay(1);
   BMI088_ACCEL_NS_H();
 
   // Soft Reset GYRO
   BMI088_GYRO_NS_L();
   bmi088_write_reg(0x14, 0xB6); // Write 0xB6 to GYRO_SOFTRESET(0x14)
-  HAL_Delay(30);
+  osDelay(30);
   BMI088_GYRO_NS_H();
 
   // Switch ACCEL to Normal Mode
   BMI088_ACCEL_NS_L();
-  HAL_Delay(1);
+  osDelay(1);
   bmi088_write_reg(0x7D, 0x04); // Write 0x04 to ACC_PWR_CTRL(0x7D)
-  HAL_Delay(1);
+  osDelay(1);
+	
   BMI088_ACCEL_NS_H();
 }
+
+
+
+//感觉以上的所有HAL_Delay()都应该用osDelay()代替
+
+
+

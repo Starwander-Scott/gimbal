@@ -14,6 +14,7 @@
 
 
 
+
 extern uint8_t stop_flag;
 extern CAN_HandleTypeDef hcan1;
 extern CAN_TxHeaderTypeDef tx_header;
@@ -21,8 +22,8 @@ extern uint8_t tx_data_1[8];
 extern uint32_t can_tx_mail_box_;
 extern uint8_t tx_data_1[8];
 
-float target_speed_ = 500.0f;
-float target_angle_ = 80.0f;
+float target_speed_yaw = 0.0f;
+float target_angle_yaw = 0.0f;
 
 float linearMapping(int in, int in_min, int in_max, float out_min,
                     float out_max) {
@@ -141,14 +142,14 @@ void Motor::canRxMsgCallback(const uint8_t rx_data[8]) {
 
 void Motor::SetPosition(float target_position, float feedforward_speed, float feedforward_intensity) {
     control_method_ = POSITION_SPEED;
-    target_angle_ = target_position;
+    target_angle_yaw = target_position;
     feedforward_speed_ = feedforward_speed;
     feedforward_intensity_ = feedforward_intensity;
 }
 
 void Motor::SetSpeed(float target_speed, float feedforward_intensity) {
     control_method_ = SPEED;
-    target_speed_ = target_speed;
+    target_speed_yaw = target_speed;
     feedforward_intensity_ = feedforward_intensity;
 }
 
@@ -175,7 +176,7 @@ void Motor::handle() {
     angle_ = normalizeAngle(angle_);// 归一化累计角度
 
     gravity_ff = FeedforwardIntensityCalc(angle_);
-    control_method_ = POSITION_SPEED;// 测试时强制速度控制
+    control_method_ = SPEED;// 测试时强制速度控制
                                      //    target_speed_ = 300.f;  // 测试时目标速度为0
 
 
@@ -193,7 +194,8 @@ void Motor::handle() {
 
         case SPEED: {
             // 速度单环控制
-            float speed_output = spid_.calc(target_speed_, fdb_speed_);
+            // target_speed_ = target_speed_yaw;
+            float speed_output = spid_.calc(target_speed_yaw, fdb_speed_);
             feedforward_intensity_ = gravity_ff;
             //feedforward_intensity_ = 0.0f;
             float total_current = speed_output + feedforward_intensity_;
@@ -203,7 +205,8 @@ void Motor::handle() {
 
         case POSITION_SPEED: {
 
-            float target_speed_from_position = ppid_.calc(target_angle_, fdb_angle_);
+            //target_speed_ = target_speed_yaw;
+            float target_speed_from_position = ppid_.calc(target_angle_yaw, fdb_angle_);
 
             float total_target_speed = target_speed_from_position + feedforward_speed_;
             float speed_output = spid_.calc(total_target_speed, fdb_speed_);
@@ -226,18 +229,21 @@ float Motor::FeedforwardIntensityCalc(float current_angle) {
     const float mass = 0.5f;            // kg
     const float lever = 0.05524f;       // m (55.24 mm)
     const float g = 9.80665f;           // m/s^2
-    const float K_T = 0.3f;             // Nm/A，来自 3 N·m / 10 A
+    //const float K_T = 0.3f;             // Nm/A，来自 3 N·m / 10 A
+    const float K_T = 0.741f;               // N·m/A，来自 1.2 N·m / 1.62 A
     const float MAX_CURRENT = 10.0f;    // A，额定持续电流
     const float MIN_HOLD_CURRENT = 0.1f;// A，静摩擦补偿（可调）
 
     const float PI = 3.14159265358979323846f;
     float rad = current_angle * PI / 180.0f;
 
-    float torque_out = mass * g * lever * std::sin(rad) * 16384 / 20;
+    float  torque_out = mass * g * lever * std::sin(rad) * 16384 / 20;
     float current = torque_out / K_T;
+    current = 0;//TOD测试时关闭重力补偿
 
     return current;
 }
 
 
-Motor Motor(3591 / 187.0f);
+Motor Motor_pitch(1.0f);
+Motor Motor_yaw(1.0f);

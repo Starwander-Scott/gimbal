@@ -192,13 +192,30 @@
 #include "stm32f4xx_hal_can.h"
 #include "imu.h"
 #include "rc.h"
+#include "motor.h"
+#include "FreeRTOS.h"
 // #include "gimbal_controller.h"
+#include "CanTxManager.h"
+
 
 
 IMU imu; // 创建 IMU 实例
 // gimbal_controller.set_imu(&imu_instance);
 //================= 系统事件与控制算法占位 =================
 
+extern CAN_TxHeaderTypeDef tx_header_1;
+extern uint8_t tx_data_1[8];
+extern Motor Motor_pitch;
+extern Motor Motor_yaw;
+
+
+
+uint8_t tick1 = 0;
+uint8_t tick2 = 0;
+uint8_t tick3 = 0;
+uint8_t tick4 = 0;
+uint8_t tick5 = 0;
+uint8_t tick6 = 0;
 
 // 事件标志位（将来可移到独立的 system_events.h / .cpp）
 osEventFlagsAttr_t system_events_attr = { .name = "system_events" };
@@ -282,6 +299,7 @@ constexpr osThreadAttr_t motor_task_attributes = {
     uint32_t tick = osKernelGetTickCount();
 
     for (;;) {
+        tick1++;
         // 1. 等待 IMU 数据就绪
         osEventFlagsWait(system_events_handle, flag_imu_ready,
                          osFlagsWaitAny, osWaitForever);
@@ -302,18 +320,22 @@ constexpr osThreadAttr_t motor_task_attributes = {
     }
 }
 
+
+uint32_t tick;
 // CAN发送任务 - 数据通信
 [[noreturn]] void can_send_task(void *) {
     const uint32_t period_ms = 20; // 50 Hz
-    uint32_t tick = osKernelGetTickCount();
+    tick = osKernelGetTickCount();
 
-    CAN_TxHeaderTypeDef tx_header{};
-    uint8_t tx_data[8]{};
-    uint32_t tx_mailbox = 0;
+
+    // uint8_t tx_data[8]{};
+    // uint32_t tx_mailbox = 0;
 
     for (;;) {
+        tick2++;
         // TODO: 根据控制结果封装并发送 CAN 数据
-        // HAL_CAN_AddTxMessage(&hcan1, &tx_header, tx_data, &tx_mailbox);
+        HAL_CAN_AddTxMessage(&hcan1, &tx_header_1, tx_data_1, &can_tx_mail_box_);
+
 
         osDelayUntil(tick += period_ms);
     }
@@ -325,6 +347,7 @@ constexpr osThreadAttr_t motor_task_attributes = {
     uint32_t tick = osKernelGetTickCount();
 
     for (;;) {
+        tick3++;
         // TODO: 轮询/中断方式接收 CAN，解析后存入 rc / motor / status 等模块
         // if (can_receive_data(rx_data)) {
         //     osEventFlagsSet(system_events_handle, flag_can_rx);
@@ -344,11 +367,12 @@ constexpr osThreadAttr_t motor_task_attributes = {
     imu_sensor.init(init_angle);
 
     for (;;) {
+        tick4++;
         // 读取 BMI088 传感器数据
         imu_sensor.readSensor();
   
         // 使用 Mahony 算法更新姿态
-        imu_sensor.update();
+        // imu_sensor.update();
 
         // 通知控制任务 IMU 数据已更新
         osEventFlagsSet(system_events_handle, flag_imu_ready);
@@ -363,12 +387,13 @@ constexpr osThreadAttr_t motor_task_attributes = {
     uint32_t tick = osKernelGetTickCount();
 
     for (;;) {
+        tick5++;
         // 如果需要基于事件触发，也可以在这里等待 flag_motor_ctrl
         // osEventFlagsWait(system_events_handle, flag_motor_ctrl, osFlagsWaitAny, osWaitForever);
-
+        //
         // TODO: 读取控制量，更新电机（通过 CAN / PWM 等）
         // motor_update();
-
+        Motor_yaw.handle();
         osDelayUntil(tick += period_ms);
     }
 }

@@ -4,7 +4,7 @@
 #include <stdint.h>
 
 
-CAN_RxHeaderTypeDef rx_header;
+CAN_RxHeaderTypeDef rx_header;//id = 3 0x207
 CAN_TxHeaderTypeDef tx_header_1 = {.StdId = 0x1FE,
                                  .ExtId = 0,
                                  .IDE = CAN_ID_STD,

@@ -11,6 +11,7 @@
 #include "math.h"
 #include "motor.h"
 #include "tim.h"
+#include "imu.h"
 // #include "interrupt_notify.h"
 
 
@@ -51,9 +52,11 @@ extern CAN_TxHeaderTypeDef tx_header_2;
 extern uint8_t tx_data_1[8];
 extern uint8_t tx_data_2[8];
 extern uint8_t rx_data[8];
-extern Motor Motor;
+extern Motor Motor_pitch;
+extern Motor Motor_yaw;
 extern uint32_t can_tx_mail_box_;
 extern uint8_t stop_flag;
+extern IMU imu;
 
 
 // 新增：全局目标角度变量（可在其它模块通过 extern 访问/设置）
@@ -66,12 +69,17 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
     }
     
     // 处理电机反馈数据
-    if (rx_header.StdId == 0x201) {
-        // M3508电机反馈（ID 0x201-0x208）
-        Motor.canRxMsgCallback(rx_data);
-    } else if (rx_header.StdId >= 0x205 && rx_header.StdId <= 0x208) {
-        // 其他电机反馈处理（可根据需要扩展）
-        // 这里可以添加其他电机的处理逻辑
+    // if (rx_header.StdId == 0x201) {
+    //     // M3508电机反馈（ID 0x201-0x208）
+    //     Motor_pitch.canRxMsgCallback(rx_data);
+    // } else if (rx_header.StdId >= 0x205 && rx_header.StdId <= 0x208) {
+    //     // 其他电机反馈处理（可根据需要扩展）
+    //     // 这里可以添加其他电机的处理逻辑
+    // }
+    if (rx_header.StdId == 0x208) {
+        Motor_pitch.canRxMsgCallback(rx_data);
+    } else if (rx_header.StdId == 0x205) {
+        Motor_yaw.canRxMsgCallback(rx_data);
     }
     
     // 发送CAN接收事件（中断安全）
@@ -88,7 +96,7 @@ void HAL_TIM_PeriodElapsedCallback(
     if (htim->Instance ==
         htim7.Instance) {// 2. 现在比较的都是 TIM_TypeDef*，类型正确
 
-        Motor.handle();
+        Motor_pitch.handle();
         HAL_CAN_AddTxMessage(&hcan1, &tx_header_1, tx_data_1, &can_tx_mail_box_);
 
         // 调用 Motor 对象的 handle 方法

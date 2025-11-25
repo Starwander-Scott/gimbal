@@ -116,7 +116,8 @@ int main(void)
   HAL_CAN_Start(&hcan1);
   HAL_CAN_ActivateNotification(&hcan1, CAN_IT_RX_FIFO0_MSG_PENDING);
   HAL_TIM_Base_Start_IT(&htim7);
-  user_tasks_init();
+
+  // user_tasks_init();
   bmi088_init();
   /* USER CODE END 2 */
 
@@ -198,19 +199,8 @@ void SystemClock_Config(void)
   * @param  htim : TIM handle
   * @retval None
   */
-// void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
-// {
-//   /* USER CODE BEGIN Callback 0 */
-// // // // // //
-//   /* USER CODE END Callback 0 */
-//   if (htim->Instance == TIM6)
-//   {
-//     HAL_IncTick();
-//   }
-//   /* USER CODE BEGIN Callback 1 */
-// // // // // //
-//   /* USER CODE END Callback 1 */
-// }
+
+
 
 /**
   * @brief  This function is executed in case of error occurrence.
