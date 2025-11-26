@@ -5,13 +5,15 @@
 #include <stdint.h>
 #include <cstring>
 #include <cmath>
+#include "motor.h"
+
 
 //从364-1684线性映射到-1-1
 
 // 在 rc.h 或相应头文件中
 
 //临时定义一下，以免编译错误，待完善
-extern rc rc1;
+
 
 
 float rc::linear_mapping(float x, uint16_t in_min, uint16_t in_max, float out_min, float out_max){
@@ -102,10 +104,15 @@ void rc::handle(uint8_t* rx_data) {
     channel3 = apply_dead_zone(channel3);
     switch (raw_s1) {
         case 1:
-            s1 = UP;
+            s1 = UP;// 右拨杆上三档：系统使能
+            stop_flag = 0;
+
             break;
         case 2:
             s1 = DOWN;
+            stop_flag = 1;
+            Motor_yaw.Motor_Stop();
+            Motor_pitch.Motor_Stop();
             break;
         case 3:
             s1 = MID;
@@ -118,6 +125,7 @@ void rc::handle(uint8_t* rx_data) {
             break;
         case 2:
             s2 = DOWN;
+
             break;
         case 3:
             s2 = MID;

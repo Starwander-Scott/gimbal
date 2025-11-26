@@ -98,6 +98,7 @@ void HAL_TIM_PeriodElapsedCallback(
         htim7.Instance) {// 2. 现在比较的都是 TIM_TypeDef*，类型正确
 
         Motor_pitch.handle();
+        Motor_yaw.handle();
         HAL_CAN_AddTxMessage(&hcan1, &tx_header_1, tx_data_1, &can_tx_mail_box_);
 
         // 调用 Motor 对象的 handle 方法

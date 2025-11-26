@@ -64,6 +64,7 @@ public:
     float get_yaw_input();     // 右摇杆左右：yaw控制
 };
 
+extern rc rc1;
 
 #endif
 #endif // C3_RC_H

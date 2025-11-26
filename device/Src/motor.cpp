@@ -24,6 +24,8 @@ extern uint8_t tx_data_1[8];
 
 float target_speed_yaw = 0.0f;
 float target_angle_yaw = 0.0f;
+float target_speed_pitch = 0.0f;
+float target_angle_pitch = 0.0f;
 
 float linearMapping(int in, int in_min, int in_max, float out_min,
                     float out_max) {
@@ -56,7 +58,7 @@ Motor::Motor(float reduction_ratio) :
 }
 
 PID Motor::spid_ = PID(25.f, 0.0f, 2.0f, 1000.0f, 10000.0f, 0.1f);//
-
+// 120 2 4这一组数据会比较好，但是进程之间的调度仍需优化
 PID Motor::ppid_ = PID(120.f, 3.00f, 50.f, 40.0f, 8000.0f, 0.1f);
 
 //float Motor::target_speed_ = 0.0f;
@@ -82,24 +84,25 @@ float Motor::normalizeAngle(float angle) {
     return angle;
 }
 
-// 设置电机电流
-void Motor::setCurrent(float current) {
-    res1 = current;
-    flag1 = 1.0f;
+// // 设置电机电流
+// void Motor::setCurrent(float current) {
+//     res1 = current;
+//     flag1 = 1.0f;
+//
+//     output_intensity_ = current;
+//
+//     res2 = output_intensity_;
+//
+//     // 转换为电机驱动器能识别的格式（-16384~16384对应-20A~20A）
+//     current_raw_ = static_cast<int16_t>(output_intensity_);
+//
+//     res3 = current_raw_;
+//
+//     // 修改：打包 CAN 报文并发送（按照常见协议把电流放入 data[0..1]，大端）
+//     tx_data_1[0] = static_cast<uint8_t>((current_raw_ >> 8) & 0xFF);
+//     tx_data_1[1] = static_cast<uint8_t>((current_raw_) & 0xFF);
+// }
 
-    output_intensity_ = current;
-
-    res2 = output_intensity_;
-
-    // 转换为电机驱动器能识别的格式（-16384~16384对应-20A~20A）
-    current_raw_ = static_cast<int16_t>(output_intensity_);
-
-    res3 = current_raw_;
-
-    // 修改：打包 CAN 报文并发送（按照常见协议把电流放入 data[0..1]，大端）
-    tx_data_1[0] = static_cast<uint8_t>((current_raw_ >> 8) & 0xFF);
-    tx_data_1[1] = static_cast<uint8_t>((current_raw_) & 0xFF);
-}
 
 
 void Motor::canRxMsgCallback(const uint8_t rx_data[8]) {
@@ -140,6 +143,7 @@ void Motor::canRxMsgCallback(const uint8_t rx_data[8]) {
     temp_ = static_cast<float>(rx_data[6]);
 }
 
+
 void Motor::SetPosition(float target_position, float feedforward_speed, float feedforward_intensity) {
     control_method_ = POSITION_SPEED;
     target_angle_yaw = target_position;
@@ -159,15 +163,53 @@ void Motor::SetIntensity(float intensity) {
 }
 
 
+
 void Motor::Motor_Stop() {
     // 停止电机，设置电流为0
-    setCurrent(0.0f);        // 停止电机
+    stop_motor_flag = 1;
+    setCurrent(0.0f);
+    target_speed_yaw = 0;
+    target_speed_pitch = 0;
+    // 停止电机
     control_method_ = TORQUE;// 切换到扭矩控制
 }
 
 
+// 设置电机电流
+void Motor::setCurrent(float current) {
+    res1 = current;
+    flag1 = 1.0f;
+
+    output_intensity_ = current;
+
+    res2 = output_intensity_;
+
+    // 转换为电机驱动器能识别的格式（-16384~16384对应-20A~20A）
+    current_raw_ = static_cast<int16_t>(output_intensity_);
+
+    res3 = current_raw_;
+
+    // 修改：打包 CAN 报文并发送（按照常见协议把电流放入 data[0..1]，大端）
+    tx_data_1[0] = static_cast<uint8_t>((current_raw_ >> 8) & 0xFF);
+    tx_data_1[1] = static_cast<uint8_t>((current_raw_) & 0xFF);
+}
+
+
+
+
+
+
+
+
+
+
+
 void Motor::handle() {
     // 获取当前反馈值（需要根据实际电机接口实现）
+    // if (stop_flag == 1) {
+    //     Motor_Stop();
+    //     return;
+    // }
     flag3 = 3.0f;
 
     fdb_angle_ = getCurrentAngle();// 获取当前角度
@@ -222,6 +264,11 @@ void Motor::handle() {
             break;
     }
 }
+
+
+
+
+
 
 float Motor::FeedforwardIntensityCalc(float current_angle) {
     //feedforward_intensity_ = 0.5*9.8*sin(angle_/180*3.14159265358979323846)*0.05524/0.3*16384/20;

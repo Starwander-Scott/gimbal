@@ -10,6 +10,7 @@
 extern uint8_t stop_flag;
 extern float target_speed;
 extern float target_angle;
+
 float linearMapping(int in, int in_min, int in_max, float out_min,
                     float out_max);
 
@@ -39,6 +40,8 @@ private:
     int result1 = 0;
     int result2 = 0;
     int16_t result3 = 0;
+    uint8_t stop_motor_flag = 0;
+
 
     int sum = 0;
 
@@ -94,5 +97,7 @@ public:
     void Motor_Stop();
 };
 
+extern Motor Motor_pitch;
+extern Motor Motor_yaw;
 
 #endif //FINAL_MOTOR_H
