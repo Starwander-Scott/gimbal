@@ -33,6 +33,8 @@
 #include "CanTxManager.h"
 #include "bmi088.h"
 #include "user_tasks.h"
+#include "rc.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -74,7 +76,7 @@ void MX_FREERTOS_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+uint8_t rx_buffer[18];
 /* USER CODE END 0 */
 
 /**
@@ -119,6 +121,7 @@ int main(void)
 
   // user_tasks_init();
   bmi088_init();
+  HAL_UARTEx_ReceiveToIdle_DMA(&huart3,rx_buffer,18);
   /* USER CODE END 2 */
 
   /* Init scheduler */

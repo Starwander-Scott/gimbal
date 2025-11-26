@@ -9,7 +9,7 @@
 //从364-1684线性映射到-1-1
 
 // 在 rc.h 或相应头文件中
-uint8_t rx_buffer[18];
+
 //临时定义一下，以免编译错误，待完善
 extern rc rc1;
 
@@ -95,6 +95,11 @@ void rc::handle(uint8_t* rx_data) {
     channel1 = linear_mapping(raw_ch1, 364, 1684, -1, 1);
     channel2 = linear_mapping(raw_ch2, 364, 1684, -1, 1);
     channel3 = linear_mapping(raw_ch3, 364, 1684, -1, 1);
+
+    channel0 = apply_dead_zone(channel0);
+    channel1 = apply_dead_zone(channel1);
+    channel2 = apply_dead_zone(channel2);
+    channel3 = apply_dead_zone(channel3);
     switch (raw_s1) {
         case 1:
             s1 = UP;

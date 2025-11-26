@@ -220,6 +220,11 @@
           <WinNumber>1</WinNumber>
           <ItemText>target_speed_yaw</ItemText>
         </Ww>
+        <Ww>
+          <count>14</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>rc1</ItemText>
+        </Ww>
       </WatchWindow1>
       <Tracepoint>
         <THDelay>0</THDelay>

@@ -7,6 +7,7 @@
 #include "main.h"
 #include "rc.h"
 #include "can.h"
+#include "cmsis_os2.h"
 #include "gpio.h"
 #include "math.h"
 #include "motor.h"
@@ -44,7 +45,7 @@
 // extern uint8_t rx_msg[4];
 
 rc rc1;
-extern uint8_t rx_buffer[18];
+// extern uint8_t rx_buffer[18];
 
 extern CAN_RxHeaderTypeDef rx_header;
 extern CAN_TxHeaderTypeDef tx_header_1;
@@ -113,5 +114,6 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart,uint16_t Size) {
         
         // 重新启动DMA接收
         HAL_UARTEx_ReceiveToIdle_DMA(&huart3, rx_buffer, 18);
+        // osSemaphoreAcquire(rc_semaphore_handle,0);
     }
 }

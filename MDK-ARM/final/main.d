@@ -46,4 +46,5 @@ final/main.o: ..\Core\Src\main.c ..\Core\Inc\main.h \
   ..\Core\Inc\tim.h ..\Core\Inc\usart.h ..\Core\Inc\gpio.h \
   C:\Keil_v5\ARM\ARMCLANG\Bin\..\include\math.h \
   ..\device\Inc\CanTxManager.h ..\device\Inc\bmi088.h \
-  ..\Core\Inc\user_tasks.h
+  ..\Core\Inc\user_tasks.h ..\application\Inc\rc.h \
+  C:\Keil_v5\ARM\ARMCLANG\Bin\..\include\stdbool.h

@@ -8,7 +8,27 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+    extern uint8_t rx_buffer[18];
+#ifdef __cplusplus
+}
+#endif
+
+
+
+
 enum joystick{UP,MID,DOWN};
+
+#ifdef __cplusplus
+
+
+
+
+
+
 
 class rc {
 private:
@@ -45,4 +65,5 @@ public:
 };
 
 
+#endif
 #endif // C3_RC_H

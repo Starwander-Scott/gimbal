@@ -291,6 +291,14 @@ constexpr osThreadAttr_t motor_task_attributes = {
     .priority   = osPriorityRealtime,
 };
 
+//遥控器任务 - 遥控器数据处理
+osThreadId_t rc_task_handle;
+constexpr osThreadAttr_t rc_task_attributes = {
+    .name       = "rc_task",
+    .stack_size = 192 * 4,
+    .priority   = osPriorityNormal,
+};
+
 //================= 任务函数实现 =================
 
 // Control任务函数 - 主控制循环
@@ -398,6 +406,22 @@ uint32_t tick;
     }
 }
 
+[[noreturn]] void rc_task(void *) {
+    const uint32_t period_ms = 10;
+    uint32_t tick = osKernelGetTickCount();
+
+    for (;;) {
+        tick6++;
+        // 1. 读取遥控器数据
+        // rc.handle(rx_data);
+
+        // 2. 获取控制量
+        // float pitch = rc.get_pitch_input();
+        // float yaw = rc.get_yaw_input();
+
+        // 3. 通知控制任务更新控制量
+    }
+}
 //================= 任务初始化 =================
 
 void user_tasks_init() {
@@ -409,6 +433,7 @@ void user_tasks_init() {
     can_recv_task_handle  = osThreadNew(can_recv_task, nullptr, &can_recv_task_attributes);
     imu_task_handle       = osThreadNew(imu_task,      nullptr, &imu_task_attributes);
     motor_task_handle     = osThreadNew(motor_task,    nullptr, &motor_task_attributes);
+    rc_task_handle = osThreadNew(rc_task, nullptr, &rc_task_attributes);
 }
 
 
